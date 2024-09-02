@@ -25,15 +25,24 @@ pipeline {
             }
         }
         
-        stage('Quality Gate') {
+        stage('Zip Code') {
             steps {
                 script {
-                    timeout(time: 1, unit: 'HOURS') {
-                        def qualityGate = waitForQualityGate()
-                        if (qualityGate.status != 'OK') {
-                            error "Pipeline aborted due to quality gate failure: ${qualityGate.status}"
-                        }
-                    }
+                    // Create a zip file of the project directory
+                    sh 'zip -r project.zip .'
+                    
+                }
+            }
+        }
+    
+        
+        stage('Upload to Nexus repo') {
+            steps {
+                script {
+                    nexusArtifactUploader credentialsId: 'nexus-id-pass', groupId: '12', nexusUrl: 'localhost:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'project', version: '1.1',artifacts: [
+                            [artifactId: 'project', classifier: '', file: 'project.zip', type: 'zip']
+                        ]
+                    
                 }
             }
         }
@@ -42,6 +51,9 @@ pipeline {
     post {
         always {
             echo 'Pipeline execution finished.'
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }

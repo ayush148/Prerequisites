@@ -25,6 +25,8 @@ pipeline {
             }
         }
         
+
+        
         stage('Zip Code') {
             steps {
                 script {
@@ -39,7 +41,7 @@ pipeline {
         stage('Upload to Nexus repo') {
             steps {
                 script {
-                    nexusArtifactUploader credentialsId: 'nexus-id-pass', groupId: '12', nexusUrl: 'localhost:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'project', version: '1.1',artifacts: [
+                    nexusArtifactUploader credentialsId: 'nexus-id-pass', nexusUrl: 'localhost:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'project', version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}"   ,artifacts: [
                             [artifactId: 'project', classifier: '', file: 'project.zip', type: 'zip']
                         ]
                     
